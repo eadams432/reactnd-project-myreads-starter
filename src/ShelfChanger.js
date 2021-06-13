@@ -1,12 +1,29 @@
 import React from 'react';
+import * as BooksAPI from './BooksAPI';
 
 class ShelfChanger extends React.Component{
 
+    state = {
+        value: this.props.book.shelf ? this.props.book.shelf :  'none'
+    } 
+
+    changeShelf = (event) => {
+        event.preventDefault();
+        const { book } = this.props;
+        const shelf = event.target.value;
+        BooksAPI.update(book, shelf)
+        .then(result=>{
+            this.setState({
+                value: shelf
+            });
+        });
+    }
+
     render(){
-        const { book, status } = this.props;
+        
         return(
             <div className="book-shelf-changer">
-                <select>
+                <select value={this.state.value} onChange={this.changeShelf}>
                     <option value="move" disabled>Move to...</option>
                     <option value="currentlyReading">Currently Reading</option>
                     <option value="wantToRead">Want to Read</option>

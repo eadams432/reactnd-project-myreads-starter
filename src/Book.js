@@ -14,7 +14,7 @@ class Book extends React.Component{
             <div className="book">
                 <div className="book-top">
                     <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: `url("${imageLinks.smallThumbnail}")` }}></div>
-                    <ShelfChanger />
+                    <ShelfChanger book={this.props.book}/>
                 </div>
             <div className="book-title">{title}</div>
             <div className="book-authors">{authors.map(author=>author + ', ')}</div>
