@@ -11,11 +11,17 @@ class SearchPage extends React.Component{
     }
 
     onSearch = (searchTerms) => {
-        BooksAPI.search(searchTerms).then(books=>{
-            console.log(books);
-            this.setState({
-                results: books
+        BooksAPI.search(searchTerms).then(searchResult=>{
+            console.log(searchResult);
+            if(Array.isArray(searchResult)){
+              this.setState({
+                  results: searchResult
+              });
+            } else {
+              this.setState({
+                results: []
             });
+            }
         });
     }
 
@@ -30,6 +36,14 @@ class SearchPage extends React.Component{
     }
 
     render(){
+        const resultsDisplay = this.state.results.length > 0 ? 
+          this.state.results.map(book=>(
+            <li key={book.title}>
+              <Book book={book}/>
+            </li> ))
+            :
+            <li>No books found</li>;
+
         return(
             <div className="search-books">
             <div className="search-books-bar">
@@ -53,11 +67,7 @@ class SearchPage extends React.Component{
             </div>
             <div className="search-books-results">
               <ol className="books-grid"></ol>
-              {this.state.results.map(book=>(
-                <li key={book.title}>
-                  <Book book={book}/>
-                </li>
-              ))}
+              {resultsDisplay}
             </div>
           </div>
         );

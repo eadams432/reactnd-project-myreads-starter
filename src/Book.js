@@ -4,8 +4,8 @@ import ShelfChanger from './ShelfChanger';
 class Book extends React.Component{
 
     state = {
-        shelf: '',
-        status:'',
+        shelf: this.props.shelf,
+        status: this.props.status,
     }
 
     render(){

@@ -3,6 +3,7 @@ import React from 'react';
 class ShelfChanger extends React.Component{
 
     render(){
+        const { book, status } = this.props;
         return(
             <div className="book-shelf-changer">
                 <select>
