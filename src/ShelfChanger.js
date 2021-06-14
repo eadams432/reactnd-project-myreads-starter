@@ -1,26 +1,28 @@
 import React from 'react';
 import * as BooksAPI from './BooksAPI';
+import PropTypes from 'prop-types';
 
 class ShelfChanger extends React.Component{
 
     state = {
-        value: this.props.book.shelf ? this.props.book.shelf :  'none'
+        value: this.props.shelf ? this.props.shelf :  ''
     } 
 
     changeShelf = (event) => {
         event.preventDefault();
         const { book } = this.props;
-        const shelf = event.target.value;
-        BooksAPI.update(book, shelf)
-        .then(result=>{
-            this.setState({
-                value: shelf
+        const newShelf = event.target.value;
+        const currentShelf = this.state.value;
+        BooksAPI.update(book, newShelf)
+            .then(result=>{
+                this.setState({
+                    value: newShelf
+                });
+                this.props.updateShelf(currentShelf, newShelf);
             });
-        });
     }
 
     render(){
-        
         return(
             <div className="book-shelf-changer">
                 <select value={this.state.value} onChange={this.changeShelf}>
@@ -33,6 +35,12 @@ class ShelfChanger extends React.Component{
             </div>
         );
     }
+}
+
+ShelfChanger.propTypes = {
+    shelf: PropTypes.string,
+    book: PropTypes.object.isRequired,
+    updateShelf: PropTypes.func.isRequired
 }
 
 export default ShelfChanger;

@@ -1,28 +1,54 @@
 import React from 'react';
 import * as BooksAPI from './BooksAPI';
-import Shelf from './Shelf';
 import Book from './Book';
+import { Link } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
 class SearchPage extends React.Component{
 
     state = {
         query: '',
-        results: []
+        results: [],
+        shelvedBooks: this.props.savedBooks ? this.props.savedBooks : []
+    }
+
+    //need to look up saved books here in case user navigates to search page directly
+    componentDidMount() {
+      if(!this.state.shelvedBooks.length>0){
+        BooksAPI.getAll().then((allBooks) => {
+          this.setState({
+            shelvedBooks: allBooks
+          });
+        })
+      }
     }
 
     onSearch = (searchTerms) => {
-        BooksAPI.search(searchTerms).then(searchResult=>{
-            console.log(searchResult);
-            if(Array.isArray(searchResult)){
-              this.setState({
-                  results: searchResult
-              });
-            } else {
-              this.setState({
-                results: []
+      BooksAPI.search(searchTerms).then(searchResult=>{
+          if(Array.isArray(searchResult) && searchResult.length>0){
+            searchResult.map(result=>{
+              return result.shelf = this.checkBookStatus(result);
             });
-            }
-        });
+            this.setState({
+                results: searchResult
+            });
+          } else {
+            this.setState({
+              results: []
+          });
+          }
+      });
+    }
+
+    checkBookStatus = (book) => {
+      let shelf = 'none';
+      for(let shelfBook of this.state.shelvedBooks){
+        if (shelfBook.id === book.id){
+          shelf = shelfBook.shelf;
+          break;
+        }
+      }
+      return shelf;
     }
 
     updateQuery = (event) => {
@@ -30,24 +56,24 @@ class SearchPage extends React.Component{
         this.setState({
             query:newQuery
         });
-        if (newQuery.length>0){
-            this.onSearch(newQuery);
-        }
+        this.onSearch(newQuery);
     }
+
 
     render(){
         const resultsDisplay = this.state.results.length > 0 ? 
           this.state.results.map(book=>(
-            <li key={book.title}>
-              <Book book={book}/>
+            <li className='books-grid-li' key={book.id}>
+              <Book book={book} shelfChange={this.props.shelfChange} shelf={book.shelf}/>
             </li> ))
             :
-            <li>No books found</li>;
+             this.state.query ? <li>No results found</li> : '';
 
         return(
             <div className="search-books">
             <div className="search-books-bar">
-              <button className="close-search" onClick={() => this.setState({ showSearchPage: false })}>Close</button>
+              {/* <button className="close-search" onClick={() => this.setState({ showSearchPage: false })}>Close</button> */}
+              <Link className='close-search' to='/'>Close</Link>
               <div className="search-books-input-wrapper">
                 {/*
                   NOTES: The search from BooksAPI is limited to a particular set of search terms.
@@ -66,12 +92,18 @@ class SearchPage extends React.Component{
               </div>
             </div>
             <div className="search-books-results">
-              <ol className="books-grid"></ol>
+              <ol className="books-grid">
               {resultsDisplay}
+              </ol>
             </div>
           </div>
         );
     }
+}
+
+SearchPage.propTypes = {
+  shelfChange: PropTypes.func.isRequired,
+  savedBooks: PropTypes.array,
 }
 
 export default SearchPage;
